@@ -49,7 +49,8 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
         case 'SONG_PLAYING':
           setSelectedGuess(null)
           setMyResult(null)
-          // Start 3-second countdown before the actual 30 second timer
+          // Start 3-second countdown before the actual 60 second timer
+          setGameState('playing')
           setCountdownTimer(3)
           setTimer(null)
           break
@@ -206,34 +207,37 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
 
       {gameState === 'playing' && (
         <>
-          {countdownTimer !== null ? (
+          {countdownTimer !== null && (
             <div style={{
               position: 'fixed',
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'rgba(0, 0, 0, 0.7)',
+              background: 'rgba(0, 0, 0, 0.85)',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              zIndex: 100
+              zIndex: 9999
             }}>
-              <p style={{ color: 'white', fontSize: 24, marginBottom: 30, textAlign: 'center' }}>
+              <p style={{ color: '#fff', fontSize: 28, marginBottom: 40, textAlign: 'center', fontWeight: 'bold' }}>
                 Host is starting the song...
               </p>
               <div style={{
-                fontSize: 120,
+                fontSize: 180,
                 fontWeight: 'bold',
-                color: '#ff9800',
+                color: '#FFD700',
                 lineHeight: 1,
+                textShadow: '0 0 20px rgba(255, 215, 0, 0.8)',
                 animation: 'pulse 1s infinite'
               }}>
                 {countdownTimer}
               </div>
             </div>
-          ) : timer !== null && (
+          )}
+
+          {timer !== null && countdownTimer === null && (
             <div className={`timer ${timer < 10 ? 'warning' : ''}`}>
               {timer}s
             </div>
