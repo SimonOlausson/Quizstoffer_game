@@ -1,0 +1,67 @@
+{
+  "quizzes": [
+    {
+      "id": 1,
+      "name": "90s Pop Hits",
+      "songs": [
+        {
+          "id": 0,
+          "title": "Run the World (Girls)",
+          "artist": "Beyoncé",
+          "buttonText": "Girl Power",
+          "spotifyUri": "spotify:track:1uXbwHHfgsXcUKfSZw5ZJ0"
+        },
+        {
+          "id": 1,
+          "title": "Bitter Sweet Symphony",
+          "artist": "The Verve",
+          "buttonText": "Vertical Stripes",
+          "spotifyUri": "spotify:track:57iDDD9N9tTWe75x6qhStw"
+        },
+        {
+          "id": 2,
+          "title": "Creep",
+          "artist": "Radiohead",
+          "buttonText": "Strange & Alone",
+          "spotifyUri": "spotify:track:70LcF31zb1H0PyJoS1Sx1r"
+        },
+        {
+          "id": 3,
+          "title": "No Scrubs",
+          "artist": "TLC",
+          "buttonText": "No Time Wasters",
+          "spotifyUri": "spotify:track:1KGi9sZVMeszgZOWivFpxs"
+        },
+        {
+          "id": 4,
+          "title": "Sabotage",
+          "artist": "Beastie Boys",
+          "buttonText": "Beastie Chaos",
+          "spotifyUri": "spotify:track:0Puj4YlTm6xNzDDADXHMI9"
+        },
+        {
+          "id": 5,
+          "title": "Zombie",
+          "artist": "The Cranberries",
+          "buttonText": "Irish Undead",
+          "spotifyUri": "spotify:track:49wOjOkS4pBK3PQnPnNYjb"
+        },
+        {
+          "id": 6,
+          "title": "Wonderwall",
+          "artist": "Oasis",
+          "buttonText": "Britpop Wonder",
+          "spotifyUri": "spotify:track:1qPbGZqppFwLwcBC1JQ6Vr"
+        },
+        {
+          "id": 7,
+          "title": "Barbie world",
+          "artist": "Nicki Minaj",
+          "buttonText": "Ken",
+          "spotifyUri": "spotify:track:741UUVE2kuITl0c6zuqqbO"
+        }
+      ]
+    }
+  ],
+  "nextId": 4
+}
