@@ -82,6 +82,13 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
         case 'PLAYER_LEFT':
           // Handle player disconnect
           break
+        case 'HOST_MIGRATED':
+          // This host is no longer the host - if we're the new host, stay, otherwise redirect
+          console.log(`Host migrated: ${data.newHostName} is now the host`)
+          break
+        case 'PLAYER_DISCONNECTED':
+          console.log(`Player disconnected: ${data.playerName}`)
+          break
       }
     }
   }, [ws])

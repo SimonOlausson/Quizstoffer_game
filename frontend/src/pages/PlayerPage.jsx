@@ -93,6 +93,13 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
         case 'PLAYER_JOINED':
           setAllPlayers(data.players)
           break
+        case 'HOST_MIGRATED':
+          // Host changed, show notification
+          console.log(`Host migrated: ${data.newHostName} is now the host`)
+          break
+        case 'PLAYER_DISCONNECTED':
+          console.log(`${data.playerName} disconnected`)
+          break
       }
     }
   }, [ws])
