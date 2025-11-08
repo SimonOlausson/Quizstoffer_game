@@ -237,6 +237,7 @@ function handlePlaySong(ws, payload) {
 
   room.currentButton = buttonIndex;
   room.guesses.clear();
+  room.songStartTime = Date.now(); // Track song start time for speed-based scoring
 
   broadcastToRoom(ws.roomId, {
     type: 'SONG_PLAYING',
@@ -267,15 +268,22 @@ function handleSubmitGuess(ws, payload) {
   room.guesses.set(ws.playerId, guess);
 
   const isCorrect = guess === room.currentButton;
+  let points = 0;
+
   if (isCorrect) {
-    room.scores[ws.playerId] = (room.scores[ws.playerId] || 0) + 10;
+    // Calculate speed-based points: faster answers get more points (max 100)
+    // 60 seconds total, formula: 100 * (60 - secondsElapsed) / 60
+    const timeElapsed = (Date.now() - room.songStartTime) / 1000; // Convert to seconds
+    const maxTime = 60;
+    points = Math.max(0, Math.round(100 * (maxTime - timeElapsed) / maxTime));
+    room.scores[ws.playerId] = (room.scores[ws.playerId] || 0) + points;
   }
 
   // Send feedback to the player who guessed
   ws.send(JSON.stringify({
     type: 'GUESS_RECEIVED',
     correct: isCorrect,
-    points: isCorrect ? 10 : 0,
+    points: points,
   }));
 
   // Broadcast updated scores to all players
