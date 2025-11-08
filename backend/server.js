@@ -449,53 +449,6 @@ function handleReconnect(ws, payload) {
   }
 }
 
-// Handle host disconnection - promote a new host
-function handleHostDisconnect(room, roomId, formerHostId) {
-  if (room.players.size === 0) {
-    // No other players, delete room
-    rooms.delete(roomId);
-    console.log(`Room deleted (host disconnected, no players): ${roomId}`);
-    return;
-  }
-
-  // Find the highest-scoring player to become the new host
-  let newHost = null;
-  let highestScore = -1;
-
-  for (const [playerId, player] of room.players.entries()) {
-    if (player.connected) { // Only consider connected players
-      const playerScore = room.scores[playerId] || 0;
-      if (playerScore > highestScore) {
-        highestScore = playerScore;
-        newHost = { id: playerId, player };
-      }
-    }
-  }
-
-  // If no connected players, find the first player in grace period
-  if (!newHost && room.players.size > 0) {
-    for (const [playerId, player] of room.players.entries()) {
-      newHost = { id: playerId, player };
-      break;
-    }
-  }
-
-  if (newHost) {
-    // Update the new host reference
-    room.host = newHost.player;
-    room.host.playerId = newHost.id;
-    console.log(`New host promoted: ${newHost.id} in room ${roomId}`);
-
-    // Notify all players of the new host
-    broadcastToRoom(roomId, {
-      type: 'HOST_MIGRATED',
-      newHostId: newHost.id,
-      newHostName: newHost.player.name,
-      message: `${newHost.player.name} is now the host`,
-    });
-  }
-}
-
 // Player disconnect handler
 function handlePlayerDisconnect(ws) {
   const roomId = ws.roomId;
@@ -514,34 +467,33 @@ function handlePlayerDisconnect(ws) {
           playerName: player.name,
         });
 
-        // Set a 30-second grace period for reconnection
-        const gracePeriodTimeout = setTimeout(() => {
-          const stillDisconnected = room.players.get(ws.playerId);
-          if (stillDisconnected && !stillDisconnected.connected) {
-            // If this was the host and they didn't reconnect, promote a new host
-            const wasHost = ws.isHost;
-            room.players.delete(ws.playerId);
-            console.log(`Player removed after grace period: ${ws.playerId} in room ${roomId}`);
+        // For hosts, wait indefinitely for reconnection - no removal
+        // For regular players, set a 30-second grace period
+        if (!ws.isHost) {
+          const gracePeriodTimeout = setTimeout(() => {
+            const stillDisconnected = room.players.get(ws.playerId);
+            if (stillDisconnected && !stillDisconnected.connected) {
+              room.players.delete(ws.playerId);
+              console.log(`Player removed after grace period: ${ws.playerId} in room ${roomId}`);
 
-            // Notify other players that this player left
-            broadcastToRoom(roomId, {
-              type: 'PLAYER_LEFT',
-              playerId: ws.playerId,
-            });
+              // Notify other players that this player left
+              broadcastToRoom(roomId, {
+                type: 'PLAYER_LEFT',
+                playerId: ws.playerId,
+              });
 
-            // If no players left, delete room
-            if (room.players.size === 0) {
-              rooms.delete(roomId);
-              console.log(`Room deleted: ${roomId}`);
-            } else if (wasHost) {
-              // Host permanently left, promote a new host
-              handleHostDisconnect(room, roomId, ws.playerId);
+              // If no players left and host is gone, delete room
+              if (room.players.size === 0) {
+                rooms.delete(roomId);
+                console.log(`Room deleted: ${roomId}`);
+              }
             }
-          }
-        }, 30000); // 30 second grace period
+          }, 30000); // 30 second grace period for regular players
 
-        // Store the timeout ID so we can clear it if player reconnects
-        player.disconnectTimeoutId = gracePeriodTimeout;
+          player.disconnectTimeoutId = gracePeriodTimeout;
+        } else {
+          console.log(`Host ${ws.playerId} disconnected - waiting for reconnection indefinitely`);
+        }
       }
     }
   }
