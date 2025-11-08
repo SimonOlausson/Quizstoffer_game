@@ -317,13 +317,22 @@ function finishRound(room) {
   room.guesses.forEach((guess, playerId) => {
     const isCorrect = guess === room.currentButton;
     const playerName = room.players.get(playerId)?.name || 'Unknown Player';
+
+    // Calculate points based on speed (same logic as handleSubmitGuess)
+    let points = 0;
+    if (isCorrect) {
+      const timeElapsed = (Date.now() - room.songStartTime) / 1000;
+      const maxTime = 60;
+      points = Math.max(0, Math.round(100 * (maxTime - timeElapsed) / maxTime));
+    }
+
     results.push({
       playerId,
       playerName,
       guess,
       correct: isCorrect,
       correctAnswer: room.currentButton,
-      points: isCorrect ? 10 : 0,
+      points: points,
     });
   });
 
