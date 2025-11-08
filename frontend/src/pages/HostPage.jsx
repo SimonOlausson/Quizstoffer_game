@@ -216,21 +216,54 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
           <p style={{ textAlign: 'center', color: '#666', marginBottom: 20 }}>
             Round {currentRound + 1} - Select a song to play
           </p>
-          <div className="button-grid">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {sampleQuiz.map((song, idx) => {
               const isUsed = usedButtons.includes(idx);
               const isSelected = selectedButton === idx;
-              const isOtherSelected = selectedButton !== null && selectedButton !== idx;
               return (
-                <button
+                <div
                   key={idx}
-                  className={`quiz-button ${isSelected ? 'selected' : ''} ${isOtherSelected || isUsed ? 'disabled' : ''}`}
-                  onClick={() => handlePlaySong(idx)}
-                  disabled={isOtherSelected || isUsed}
-                  title={isUsed ? 'Already used' : ''}
+                  style={{
+                    padding: 16,
+                    background: isSelected ? '#e3f2fd' : isUsed ? '#f5f5f5' : 'white',
+                    border: isSelected ? '2px solid #2196f3' : isUsed ? '1px solid #ccc' : '1px solid #e0e0e0',
+                    borderRadius: 12,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    opacity: isUsed ? 0.6 : 1,
+                  }}
                 >
-                  {song.buttonText}
-                </button>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', fontSize: 16 }}>
+                      {song.title}
+                    </p>
+                    <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: 14 }}>
+                      {song.artist}
+                    </p>
+                    <p style={{ margin: 0, color: '#999', fontSize: 12, fontStyle: 'italic' }}>
+                      Hint: {song.buttonText}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handlePlaySong(idx)}
+                    disabled={isUsed || selectedButton !== null}
+                    style={{
+                      padding: '10px 20px',
+                      marginLeft: 16,
+                      background: isUsed ? '#ccc' : '#667eea',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: isUsed || selectedButton !== null ? 'not-allowed' : 'pointer',
+                      fontWeight: 600,
+                      fontSize: 14,
+                      opacity: isUsed || (selectedButton !== null && !isSelected) ? 0.5 : 1,
+                    }}
+                  >
+                    {isUsed ? '✓ Used' : 'Play'}
+                  </button>
+                </div>
               );
             })}
           </div>
