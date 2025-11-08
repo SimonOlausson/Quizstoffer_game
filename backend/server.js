@@ -342,10 +342,10 @@ function finishRound(room) {
   // Check if all songs have been played (8 total)
   if (room.usedButtons.length >= room.quiz.length) {
     // Game ended - send final scoreboard
-    const finalScoreboard = Array.from(room.players.values())
-      .map(player => ({
+    const finalScoreboard = Array.from(room.players.entries())
+      .map(([playerId, player]) => ({
         name: player.name,
-        score: room.scores[Object.entries(room.players).find(([id, p]) => p === player)?.[0]] || 0
+        score: room.scores[playerId] || 0
       }))
       .sort((a, b) => b.score - a.score);
 
