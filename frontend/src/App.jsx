@@ -119,7 +119,7 @@ export default function App() {
         case 'RECONNECT_SUCCESS':
           setRoomId(data.roomId)
           setGameId(data.gameId)
-          setIsHost(data.gameState ? false : data.isHost)
+          setIsHost(data.isHost)
           setPage(data.isHost ? 'host' : 'player')
           break
         case 'ERROR':

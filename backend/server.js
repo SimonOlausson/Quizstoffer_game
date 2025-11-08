@@ -431,6 +431,7 @@ function handleReconnect(ws, payload) {
       usedButtons: room.usedButtons,
       scores: room.scores,
       gameState: room.state,
+      isHost: ws.isHost,
     }));
 
     // Notify other players that this player rejoined
