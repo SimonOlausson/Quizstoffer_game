@@ -331,52 +331,77 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
       )}
 
       {gameState === 'game_ended' && (
-        <>
-          <div style={{ textAlign: 'center', marginBottom: 30 }}>
-            <h2 style={{ fontSize: 32, margin: '0 0 10px 0' }}>🎉 Game Over! 🎉</h2>
-            <p style={{ color: '#666', fontSize: 16 }}>Final Results</p>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 10000,
+          padding: 20,
+          overflow: 'auto'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: 40, animation: 'bounce 1s infinite' }}>
+            <div style={{ fontSize: 80, marginBottom: 20 }}>🎉</div>
+            <h1 style={{ fontSize: 56, margin: '0 0 10px 0', color: '#fff', fontWeight: 'bold', textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)' }}>Game Over!</h1>
+            <p style={{ color: '#fff', fontSize: 20, margin: 0, opacity: 0.95 }}>Here are the final results</p>
           </div>
 
           {finalScoreboard && finalScoreboard.length > 0 && (
-            <div className="scoreboard" style={{ marginBottom: 30 }}>
-              <h3 style={{ marginTop: 0, marginBottom: 20, textAlign: 'center' }}>Final Scoreboard</h3>
+            <div style={{ width: '100%', maxWidth: 500, marginBottom: 40 }}>
               {finalScoreboard.map((player, idx) => {
                 const isWinner = idx === 0;
+                const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
                 return (
                   <div
                     key={idx}
                     style={{
-                      padding: 16,
-                      marginBottom: 12,
-                      background: isWinner ? '#fff3cd' : '#f9f9f9',
-                      border: isWinner ? '2px solid #ffc107' : '1px solid #e0e0e0',
-                      borderRadius: 12,
+                      padding: 20,
+                      marginBottom: 16,
+                      background: isWinner ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.85)',
+                      borderRadius: 16,
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
+                      boxShadow: isWinner ? '0 10px 30px rgba(0, 0, 0, 0.4)' : '0 4px 15px rgba(0, 0, 0, 0.2)',
+                      transform: isWinner ? 'scale(1.05)' : 'scale(1)',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ fontSize: 24 }}>
-                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`}
-                      </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{
+                        fontSize: idx < 3 ? 48 : 32,
+                        width: 70,
+                        textAlign: 'center'
+                      }}>
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}
+                      </div>
                       <div>
-                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: 16 }}>{player.name}</p>
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: 20, color: '#333' }}>
+                          {player.name}
+                        </p>
                       </div>
                     </div>
-                    <span style={{ fontSize: 20, fontWeight: 'bold', color: '#667eea' }}>
-                      {player.score} pts
-                    </span>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ margin: 0, fontSize: 28, fontWeight: 'bold', color: colors[idx] || '#667eea' }}>
+                        {player.score}
+                      </p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: 12, color: '#999' }}>points</p>
+                    </div>
                   </div>
                 );
               })}
             </div>
           )}
 
-          <button className="button" onClick={onGoHome} style={{ width: '100%' }}>
+          <button className="button" onClick={onGoHome} style={{ width: '100%', maxWidth: 500, fontSize: 18, padding: '16px 24px' }}>
             Back to Home
           </button>
-        </>
+        </div>
       )}
 
       {showQuizModal && (
