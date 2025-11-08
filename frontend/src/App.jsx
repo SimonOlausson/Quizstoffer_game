@@ -123,7 +123,16 @@ export default function App() {
           setPage(data.isHost ? 'host' : 'player')
           break
         case 'ERROR':
-          alert(data.message)
+          // If room not found, clear saved state and go home
+          if (data.message === 'Room not found') {
+            localStorage.removeItem('quiztopher_game_state')
+            setPage('home')
+            setRoomId(null)
+            setGameId(null)
+            console.log('Room not found - cleared saved state')
+          } else {
+            alert(data.message)
+          }
           break
       }
     }
