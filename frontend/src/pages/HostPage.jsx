@@ -276,9 +276,24 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
             )}
           </div>
 
-          <button className="button" onClick={handleNextRound} style={{ width: '100%' }}>
-            Next Round
-          </button>
+          {usedButtons.length < sampleQuiz.length ? (
+            <button className="button" onClick={handleNextRound} style={{ width: '100%' }}>
+              Next Round
+            </button>
+          ) : (
+            <div style={{
+              padding: 16,
+              background: '#e8f5e9',
+              border: '2px solid #4caf50',
+              borderRadius: 12,
+              textAlign: 'center',
+              color: '#2e7d32',
+              fontWeight: 'bold',
+              fontSize: 16
+            }}>
+              All songs played! Game will end...
+            </div>
+          )}
         </>
       )}
 
