@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-export default function HostPage({ ws, roomId, gameId }) {
-  const [gameState, setGameState] = useState('quiz_selection') // quiz_selection, waiting, playing, round_end
+export default function HostPage({ ws, roomId, gameId, onGoHome }) {
+  const [gameState, setGameState] = useState('quiz_selection') // quiz_selection, waiting, playing, round_end, game_ended
   const [showQuizModal, setShowQuizModal] = useState(false)
   const [selectedQuiz, setSelectedQuiz] = useState(null)
   const [players, setPlayers] = useState([])
@@ -15,6 +15,7 @@ export default function HostPage({ ws, roomId, gameId }) {
   const [retryPopup, setRetryPopup] = useState(null)
   const [allQuizzes, setAllQuizzes] = useState([])
   const [loadingQuizzes, setLoadingQuizzes] = useState(true)
+  const [finalScoreboard, setFinalScoreboard] = useState(null)
 
   const API_URL = 'http://localhost:3001'
 
@@ -69,6 +70,14 @@ export default function HostPage({ ws, roomId, gameId }) {
           setScores(data.scores)
           setUsedButtons(data.usedButtons || [])
           setGameState('playing')
+          break
+        case 'GAME_ENDED':
+          setRoundResults(data.results)
+          setScores(data.scores)
+          setUsedButtons(data.usedButtons || [])
+          setFinalScoreboard(data.finalScoreboard)
+          setRetryPopup(null)
+          setGameState('game_ended')
           break
         case 'PLAYER_LEFT':
           // Handle player disconnect
@@ -269,6 +278,55 @@ export default function HostPage({ ws, roomId, gameId }) {
 
           <button className="button" onClick={handleNextRound} style={{ width: '100%' }}>
             Next Round
+          </button>
+        </>
+      )}
+
+      {gameState === 'game_ended' && (
+        <>
+          <div style={{ textAlign: 'center', marginBottom: 30 }}>
+            <h2 style={{ fontSize: 32, margin: '0 0 10px 0' }}>🎉 Game Over! 🎉</h2>
+            <p style={{ color: '#666', fontSize: 16 }}>Final Results</p>
+          </div>
+
+          {finalScoreboard && finalScoreboard.length > 0 && (
+            <div className="scoreboard" style={{ marginBottom: 30 }}>
+              <h3 style={{ marginTop: 0, marginBottom: 20, textAlign: 'center' }}>Final Scoreboard</h3>
+              {finalScoreboard.map((player, idx) => {
+                const isWinner = idx === 0;
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: 16,
+                      marginBottom: 12,
+                      background: isWinner ? '#fff3cd' : '#f9f9f9',
+                      border: isWinner ? '2px solid #ffc107' : '1px solid #e0e0e0',
+                      borderRadius: 12,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 24 }}>
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`}
+                      </span>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: 16 }}>{player.name}</p>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 20, fontWeight: 'bold', color: '#667eea' }}>
+                      {player.score} pts
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <button className="button" onClick={onGoHome} style={{ width: '100%' }}>
+            Back to Home
           </button>
         </>
       )}

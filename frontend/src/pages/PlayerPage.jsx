@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
-export default function PlayerPage({ ws, roomId, gameId, playerName }) {
-  const [gameState, setGameState] = useState('waiting') // waiting, quiz_loaded, playing, guessed, round_end
+export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome }) {
+  const [gameState, setGameState] = useState('waiting') // waiting, quiz_loaded, playing, guessed, round_end, game_ended
   const [score, setScore] = useState(0)
   const [quiz, setQuiz] = useState([])
   const [selectedGuess, setSelectedGuess] = useState(null)
@@ -12,6 +12,7 @@ export default function PlayerPage({ ws, roomId, gameId, playerName }) {
   const [myResult, setMyResult] = useState(null)
   const [globalScores, setGlobalScores] = useState({})
   const [usedButtons, setUsedButtons] = useState([])
+  const [finalScoreboard, setFinalScoreboard] = useState(null)
 
   useEffect(() => {
     if (!ws) return
@@ -79,6 +80,13 @@ export default function PlayerPage({ ws, roomId, gameId, playerName }) {
           setCountdownTimer(null)
           setRoundResults(null)
           setUsedButtons(data.usedButtons || [])
+          setGlobalScores(data.scores || {})
+          break
+        case 'GAME_ENDED':
+          setGameState('game_ended')
+          setTimer(null)
+          setCountdownTimer(null)
+          setFinalScoreboard(data.finalScoreboard)
           setGlobalScores(data.scores || {})
           break
         case 'PLAYER_JOINED':
@@ -276,6 +284,58 @@ export default function PlayerPage({ ws, roomId, gameId, playerName }) {
           <div className="message info">
             Waiting for the next round to start...
           </div>
+        </>
+      )}
+
+      {gameState === 'game_ended' && (
+        <>
+          <div style={{ textAlign: 'center', marginBottom: 30 }}>
+            <h2 style={{ fontSize: 32, margin: '0 0 10px 0' }}>🎉 Game Over! 🎉</h2>
+            <p style={{ color: '#666', fontSize: 16 }}>Final Results</p>
+          </div>
+
+          {finalScoreboard && finalScoreboard.length > 0 && (
+            <div className="scoreboard" style={{ marginBottom: 30 }}>
+              <h3 style={{ marginTop: 0, marginBottom: 20, textAlign: 'center' }}>Final Scoreboard</h3>
+              {finalScoreboard.map((player, idx) => {
+                const isWinner = idx === 0;
+                const isCurrentPlayer = player.name === playerName;
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: 16,
+                      marginBottom: 12,
+                      background: isWinner ? '#fff3cd' : isCurrentPlayer ? '#e8f5e9' : '#f9f9f9',
+                      border: isWinner ? '2px solid #ffc107' : isCurrentPlayer ? '2px solid #4caf50' : '1px solid #e0e0e0',
+                      borderRadius: 12,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 24 }}>
+                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`}
+                      </span>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: 16 }}>
+                          {player.name} {isCurrentPlayer && '(You)'}
+                        </p>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 20, fontWeight: 'bold', color: '#667eea' }}>
+                      {player.score} pts
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <button className="button" onClick={onGoHome} style={{ width: '100%' }}>
+            Back to Home
+          </button>
         </>
       )}
     </div>

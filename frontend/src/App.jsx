@@ -33,6 +33,14 @@ export default function App() {
     }
   }
 
+  const handleGoHome = () => {
+    setPage('home')
+    setRoomId(null)
+    setGameId(null)
+    setPlayerName(null)
+    setIsHost(false)
+  }
+
   useEffect(() => {
     if (!ws) return
 
@@ -65,10 +73,10 @@ export default function App() {
         <HomePage onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} setPage={setPage} />
       )}
       {page === 'host' && roomId && gameId && (
-        <HostPage ws={ws} roomId={roomId} gameId={gameId} />
+        <HostPage ws={ws} roomId={roomId} gameId={gameId} onGoHome={handleGoHome} />
       )}
       {page === 'player' && roomId && gameId && (
-        <PlayerPage ws={ws} roomId={roomId} gameId={gameId} playerName={playerName} />
+        <PlayerPage ws={ws} roomId={roomId} gameId={gameId} playerName={playerName} onGoHome={handleGoHome} />
       )}
       {page === 'admin' && (
         <AdminPage />

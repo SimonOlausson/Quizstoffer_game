@@ -322,13 +322,34 @@ function finishRound(room) {
   // Add button to used list
   room.usedButtons.push(room.currentButton);
 
-  broadcastToRoom(room.id, {
-    type: 'ROUND_AUTO_ENDED',
-    scores: room.scores,
-    results: results,
-    correctAnswer: room.currentButton,
-    usedButtons: room.usedButtons,
-  });
+  // Check if all songs have been played (8 total)
+  if (room.usedButtons.length >= room.quiz.length) {
+    // Game ended - send final scoreboard
+    const finalScoreboard = Array.from(room.players.values())
+      .map(player => ({
+        name: player.name,
+        score: room.scores[Object.entries(room.players).find(([id, p]) => p === player)?.[0]] || 0
+      }))
+      .sort((a, b) => b.score - a.score);
+
+    broadcastToRoom(room.id, {
+      type: 'GAME_ENDED',
+      scores: room.scores,
+      results: results,
+      correctAnswer: room.currentButton,
+      usedButtons: room.usedButtons,
+      finalScoreboard: finalScoreboard,
+    });
+  } else {
+    // Game continues
+    broadcastToRoom(room.id, {
+      type: 'ROUND_AUTO_ENDED',
+      scores: room.scores,
+      results: results,
+      correctAnswer: room.currentButton,
+      usedButtons: room.usedButtons,
+    });
+  }
 }
 
 // Next round
