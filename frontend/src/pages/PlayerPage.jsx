@@ -207,8 +207,31 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
       {gameState === 'playing' && (
         <>
           {countdownTimer !== null ? (
-            <div className={`timer`} style={{ background: '#ff9800', fontSize: 48, padding: 30 }}>
-              {countdownTimer}
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.7)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 100
+            }}>
+              <p style={{ color: 'white', fontSize: 24, marginBottom: 30, textAlign: 'center' }}>
+                Host is starting the song...
+              </p>
+              <div style={{
+                fontSize: 120,
+                fontWeight: 'bold',
+                color: '#ff9800',
+                lineHeight: 1,
+                animation: 'pulse 1s infinite'
+              }}>
+                {countdownTimer}
+              </div>
             </div>
           ) : timer !== null && (
             <div className={`timer ${timer < 10 ? 'warning' : ''}`}>
