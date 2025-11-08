@@ -514,15 +514,12 @@ function handlePlayerDisconnect(ws) {
           playerName: player.name,
         });
 
-        // If host disconnected, immediately promote new host
-        if (ws.isHost) {
-          handleHostDisconnect(room, roomId, ws.playerId);
-        }
-
         // Set a 30-second grace period for reconnection
         const gracePeriodTimeout = setTimeout(() => {
           const stillDisconnected = room.players.get(ws.playerId);
           if (stillDisconnected && !stillDisconnected.connected) {
+            // If this was the host and they didn't reconnect, promote a new host
+            const wasHost = ws.isHost;
             room.players.delete(ws.playerId);
             console.log(`Player removed after grace period: ${ws.playerId} in room ${roomId}`);
 
@@ -536,6 +533,9 @@ function handlePlayerDisconnect(ws) {
             if (room.players.size === 0) {
               rooms.delete(roomId);
               console.log(`Room deleted: ${roomId}`);
+            } else if (wasHost) {
+              // Host permanently left, promote a new host
+              handleHostDisconnect(room, roomId, ws.playerId);
             }
           }
         }, 30000); // 30 second grace period
