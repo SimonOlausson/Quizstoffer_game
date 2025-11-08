@@ -69,6 +69,9 @@ function handleMessage(ws, data) {
     case 'NEXT_ROUND':
       handleNextRound(ws, payload);
       break;
+    case 'RECONNECT':
+      handleReconnect(ws, payload);
+      break;
     default:
       console.log('Unknown message type:', type);
   }
@@ -387,22 +390,105 @@ function handleNextRound(ws, payload) {
   });
 }
 
+// Handle player reconnection
+function handleReconnect(ws, payload) {
+  const { roomId, playerId, playerName } = payload;
+
+  // Find the room
+  const room = rooms.get(roomId);
+  if (!room) {
+    ws.send(JSON.stringify({
+      type: 'ERROR',
+      message: 'Room not found',
+    }));
+    return;
+  }
+
+  // Check if player already exists in the room
+  const existingPlayer = room.players.get(playerId);
+  if (existingPlayer) {
+    // Clear the grace period timeout since player reconnected
+    if (existingPlayer.disconnectTimeoutId) {
+      clearTimeout(existingPlayer.disconnectTimeoutId);
+      existingPlayer.disconnectTimeoutId = null;
+    }
+
+    // Update the WebSocket connection for the player
+    existingPlayer.ws = ws;
+    existingPlayer.connected = true;
+    ws.playerId = playerId;
+    ws.roomId = roomId;
+    ws.isHost = room.host.playerId === playerId;
+
+    console.log(`Player reconnected: ${playerId} in room ${roomId}`);
+
+    // Send the current game state to the reconnected player
+    ws.send(JSON.stringify({
+      type: 'RECONNECT_SUCCESS',
+      roomId: roomId,
+      gameId: room.gameId,
+      quiz: room.quiz,
+      usedButtons: room.usedButtons,
+      scores: room.scores,
+      gameState: room.state,
+    }));
+
+    // Notify other players that this player rejoined
+    broadcastToRoom(roomId, {
+      type: 'PLAYER_JOINED',
+      players: Array.from(room.players.values()).map(p => ({
+        name: p.name,
+        score: p.score,
+      })),
+    });
+  } else {
+    ws.send(JSON.stringify({
+      type: 'ERROR',
+      message: 'Player not found in this room',
+    }));
+  }
+}
+
 // Player disconnect handler
 function handlePlayerDisconnect(ws) {
   const roomId = ws.roomId;
   if (roomId) {
     const room = rooms.get(roomId);
     if (room) {
-      room.players.delete(ws.playerId);
+      const player = room.players.get(ws.playerId);
+      if (player) {
+        player.connected = false;
+        console.log(`Player disconnected: ${ws.playerId} in room ${roomId}`);
 
-      if (room.players.size === 0 && ws.isHost) {
-        rooms.delete(roomId);
-        console.log(`Room deleted: ${roomId}`);
-      } else {
+        // Notify other players that this player disconnected
         broadcastToRoom(roomId, {
-          type: 'PLAYER_LEFT',
+          type: 'PLAYER_DISCONNECTED',
           playerId: ws.playerId,
+          playerName: player.name,
         });
+
+        // Set a 30-second grace period for reconnection
+        const gracePeriodTimeout = setTimeout(() => {
+          const stillDisconnected = room.players.get(ws.playerId);
+          if (stillDisconnected && !stillDisconnected.connected) {
+            room.players.delete(ws.playerId);
+            console.log(`Player removed after grace period: ${ws.playerId} in room ${roomId}`);
+
+            // Check if room should be deleted (host disconnected and no other players)
+            if (ws.isHost && room.players.size === 0) {
+              rooms.delete(roomId);
+              console.log(`Room deleted: ${roomId}`);
+            } else {
+              broadcastToRoom(roomId, {
+                type: 'PLAYER_LEFT',
+                playerId: ws.playerId,
+              });
+            }
+          }
+        }, 30000); // 30 second grace period
+
+        // Store the timeout ID so we can clear it if player reconnects
+        player.disconnectTimeoutId = gracePeriodTimeout;
       }
     }
   }
