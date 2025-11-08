@@ -144,10 +144,10 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
       }))
     }
 
-    // Clear popup after 30 seconds (song duration) when round ends
+    // Clear popup after 60 seconds (song duration) when round ends
     setTimeout(() => {
       setRetryPopup(null)
-    }, 30000)
+    }, 60000)
   }
 
   const handleNextRound = () => {

@@ -96,15 +96,15 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
     }
   }, [ws])
 
-  // Countdown timer before the main 30-second timer
+  // Countdown timer before the main 60-second timer
   useEffect(() => {
     if (countdownTimer === null || countdownTimer === 0) return
 
     const interval = setInterval(() => {
       setCountdownTimer((t) => {
         if (t <= 1) {
-          // Countdown finished, start the main 30-second timer
-          setTimer(30)
+          // Countdown finished, start the main 60-second timer
+          setTimer(60)
           setGameState('playing')
           return null
         }
