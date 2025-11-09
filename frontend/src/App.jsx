@@ -13,6 +13,7 @@ export default function App() {
   const [playerName, setPlayerName] = useState(null)
   const [isHost, setIsHost] = useState(false)
   const [playerId, setPlayerId] = useState(null)
+  const [joinError, setJoinError] = useState(null)
   const playerIdRef = useRef(null)
   const WS_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? 'wss://qvisser.onrender.com'
@@ -133,6 +134,9 @@ export default function App() {
             setRoomId(null)
             setGameId(null)
             console.log('Room not found - cleared saved state')
+          } else if (page === 'home') {
+            // Show join errors on home page
+            setJoinError(data.message)
           } else {
             alert(data.message)
           }
@@ -144,7 +148,7 @@ export default function App() {
   return (
     <div className="app">
       {page === 'home' && (
-        <HomePage onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} setPage={setPage} />
+        <HomePage onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} setPage={setPage} joinError={joinError} setJoinError={setJoinError} />
       )}
       {page === 'host' && roomId && gameId && (
         <HostPage ws={ws} roomId={roomId} gameId={gameId} onGoHome={handleGoHome} />

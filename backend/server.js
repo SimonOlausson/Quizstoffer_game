@@ -144,6 +144,34 @@ function handleJoinRoom(ws, payload) {
       return;
     }
 
+    // Validate: max 8 players
+    if (room.players.size >= 8) {
+      ws.send(JSON.stringify({
+        type: 'ERROR',
+        message: 'Room is full (max 8 players)',
+      }));
+      return;
+    }
+
+    // Validate: no duplicate player names
+    const nameExists = Array.from(room.players.values()).some(p => p.name === playerName);
+    if (nameExists) {
+      ws.send(JSON.stringify({
+        type: 'ERROR',
+        message: 'Player name already taken in this room',
+      }));
+      return;
+    }
+
+    // Validate: game must be in waiting state (not already playing)
+    if (room.state !== 'waiting') {
+      ws.send(JSON.stringify({
+        type: 'ERROR',
+        message: 'Cannot join: game has already started',
+      }));
+      return;
+    }
+
     room.players.set(ws.playerId, {
       ws: ws,
       name: playerName,
@@ -224,6 +252,24 @@ function handleSelectQuiz(ws, payload) {
 function handleStartQuiz(ws, payload) {
   const room = rooms.get(ws.roomId);
   if (!room || !ws.isHost) return;
+
+  // Validate: host can't start without players
+  if (room.players.size === 0) {
+    ws.send(JSON.stringify({
+      type: 'ERROR',
+      message: 'Cannot start quiz without players',
+    }));
+    return;
+  }
+
+  // Validate: quiz must be selected and have songs
+  if (!room.quiz || room.quiz.length === 0) {
+    ws.send(JSON.stringify({
+      type: 'ERROR',
+      message: 'Cannot start without selecting a quiz',
+    }));
+    return;
+  }
 
   room.state = 'playing';
   room.currentRound = 0;

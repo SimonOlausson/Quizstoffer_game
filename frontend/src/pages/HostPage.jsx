@@ -21,6 +21,16 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
     ? 'https://qvisser.onrender.com'
     : (import.meta.env.VITE_API_URL || 'http://localhost:3001')
 
+  const handleGoHomeWithConfirm = () => {
+    // Confirm if mid-game
+    if (gameState === 'playing' || gameState === 'round_end') {
+      if (!window.confirm('Are you sure you want to leave? The game will end for all players.')) {
+        return
+      }
+    }
+    onGoHome()
+  }
+
   // Load quizzes on mount
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -408,7 +418,7 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
             </div>
           )}
 
-          <button className="button" onClick={onGoHome} style={{ width: '100%', maxWidth: 500, fontSize: 18, padding: '16px 24px' }}>
+          <button className="button" onClick={handleGoHomeWithConfirm} style={{ width: '100%', maxWidth: 500, fontSize: 18, padding: '16px 24px' }}>
             Back to Home
           </button>
         </div>

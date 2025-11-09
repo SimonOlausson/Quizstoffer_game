@@ -14,6 +14,16 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
   const [usedButtons, setUsedButtons] = useState([])
   const [finalScoreboard, setFinalScoreboard] = useState(null)
 
+  const handleGoHomeWithConfirm = () => {
+    // Confirm if mid-game
+    if (gameState === 'playing' || gameState === 'guessed' || gameState === 'round_end') {
+      if (!window.confirm('Are you sure you want to leave? You will lose your progress.')) {
+        return
+      }
+    }
+    onGoHome()
+  }
+
   useEffect(() => {
     if (!ws) return
 
@@ -344,7 +354,7 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
             </div>
           )}
 
-          <button className="button" onClick={onGoHome} style={{ width: '100%', maxWidth: 500, fontSize: 18, padding: '16px 24px' }}>
+          <button className="button" onClick={handleGoHomeWithConfirm} style={{ width: '100%', maxWidth: 500, fontSize: 18, padding: '16px 24px' }}>
             Back to Home
           </button>
         </div>

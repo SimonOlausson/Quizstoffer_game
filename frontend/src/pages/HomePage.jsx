@@ -1,11 +1,14 @@
 import { useState, useRef } from 'react'
 
-export default function HomePage({ onCreateRoom, onJoinRoom, setPage }) {
+export default function HomePage({ onCreateRoom, onJoinRoom, setPage, joinError, setJoinError }) {
   const [mode, setMode] = useState(null) // null, create, join
   const [gameIdDigits, setGameIdDigits] = useState(['', '', '', '', '', ''])
   const [playerName, setPlayerName] = useState('')
   const [showHostModal, setShowHostModal] = useState(false)
+  const [localError, setLocalError] = useState(null)
   const gameIdInputs = useRef([])
+
+  const error = localError || joinError
 
   const handleGameIdChange = (index, value) => {
     // Only allow digits
@@ -31,9 +34,11 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage }) {
   const handleJoinRoom = () => {
     const gameId = gameIdDigits.join('')
     if (gameId.length === 6 && playerName.trim()) {
+      setLocalError(null)
+      setJoinError(null)
       onJoinRoom(gameId, playerName)
     } else {
-      alert('Please enter a 6-digit game ID and player name')
+      setLocalError('Please enter a 6-digit game ID and player name')
     }
   }
 
@@ -71,6 +76,20 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage }) {
 
       {mode === 'join' && (
         <>
+          {error && (
+            <div style={{
+              padding: 12,
+              background: '#ffebee',
+              border: '1px solid #ef5350',
+              borderRadius: 8,
+              color: '#c62828',
+              marginBottom: 20,
+              fontSize: 14,
+              fontWeight: 500,
+            }}>
+              {error}
+            </div>
+          )}
           <div className="form-group">
             <label>Game ID</label>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 20 }}>
@@ -130,6 +149,8 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage }) {
               setMode(null)
               setGameIdDigits(['', '', '', '', '', ''])
               setPlayerName('')
+              setLocalError(null)
+              setJoinError(null)
             }}
             style={{ width: '100%', marginTop: 10 }}
           >
