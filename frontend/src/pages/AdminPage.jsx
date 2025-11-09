@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 export default function AdminPage() {
+  const navigate = useNavigate()
   const [quizzes, setQuizzes] = useState([])
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -107,7 +109,16 @@ export default function AdminPage() {
 
   return (
     <div className="container" style={{ maxWidth: '1000px' }}>
-      <h1>Admin Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h1 style={{ margin: 0 }}>Admin Dashboard</h1>
+        <button
+          className="button button-secondary"
+          onClick={() => navigate('/')}
+          style={{ fontSize: 14, padding: '10px 16px' }}
+        >
+          ← Back to Home
+        </button>
+      </div>
 
       {error && (
         <div className="message error" style={{ marginBottom: 20 }}>

@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-export default function HomePage({ onCreateRoom, onJoinRoom, setPage, joinError, setJoinError }) {
+export default function HomePage({ ws, onCreateRoom }) {
+  const navigate = useNavigate()
   const [mode, setMode] = useState(null) // null, create, join
   const [gameIdDigits, setGameIdDigits] = useState(['', '', '', '', '', ''])
   const [playerName, setPlayerName] = useState('')
@@ -8,7 +10,7 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage, joinError,
   const [localError, setLocalError] = useState(null)
   const gameIdInputs = useRef([])
 
-  const error = localError || joinError
+  const error = localError
 
   const handleGameIdChange = (index, value) => {
     // Only allow digits
@@ -35,8 +37,14 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage, joinError,
     const gameId = gameIdDigits.join('')
     if (gameId.length === 6 && playerName.trim()) {
       setLocalError(null)
-      setJoinError(null)
-      onJoinRoom(gameId, playerName)
+      // Save player name to localStorage before navigating
+      const savedState = localStorage.getItem('quiztopher_game_state')
+      const state = savedState ? JSON.parse(savedState) : {}
+      localStorage.setItem('quiztopher_game_state', JSON.stringify({
+        ...state,
+        playerName: playerName,
+      }))
+      navigate(`/game/${gameId}`)
     } else {
       setLocalError('Please enter a 6-digit game ID and player name')
     }
@@ -64,7 +72,7 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage, joinError,
             </button>
             <button
               className="button button-secondary"
-              onClick={() => setPage('admin')}
+              onClick={() => navigate('/admin')}
               style={{ fontSize: 14 }}
             >
               Admin Dashboard
@@ -150,7 +158,6 @@ export default function HomePage({ onCreateRoom, onJoinRoom, setPage, joinError,
               setGameIdDigits(['', '', '', '', '', ''])
               setPlayerName('')
               setLocalError(null)
-              setJoinError(null)
             }}
             style={{ width: '100%', marginTop: 10 }}
           >
