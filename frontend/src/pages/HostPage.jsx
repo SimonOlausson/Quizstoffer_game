@@ -290,7 +290,7 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
                     <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: 14 }}>
                       {song.artist}
                     </p>
-                    <p style={{ margin: 0, color: '#999', fontSize: 12, fontStyle: 'italic' }}>
+                    <p style={{ margin: 0, color: isDummy ? '#ff6b6b' : '#999', fontSize: 12, fontStyle: 'italic', fontWeight: isDummy ? 'bold' : 'normal' }}>
                       Hint: {song.buttonText}
                     </p>
                   </div>

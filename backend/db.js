@@ -18,8 +18,8 @@ function initializeDb() {
             { id: 3, title: 'No Scrubs', artist: 'TLC', buttonText: 'No Time Wasters', spotifyUri: 'spotify:track:7vfY5bYw82h8wJvuLJ3u4A', trackId: '7vfY5bYw82h8wJvuLJ3u4A', isDummy: false },
             { id: 4, title: 'Sabotage', artist: 'Beastie Boys', buttonText: 'Beastie Chaos', spotifyUri: 'spotify:track:5E8zLLKmKVD0Ib7Zj0Yolw', trackId: '5E8zLLKmKVD0Ib7Zj0Yolw', isDummy: false },
             { id: 5, title: 'Zombie', artist: 'The Cranberries', buttonText: 'Irish Undead', spotifyUri: 'spotify:track:7qwnYvJn6K0f0d1FQHD5Q2', trackId: '7qwnYvJn6K0f0d1FQHD5Q2', isDummy: false },
-            { id: 6, title: 'Dummy Track 1', artist: 'N/A', buttonText: 'Red Herring', spotifyUri: '', trackId: '', isDummy: true },
-            { id: 7, title: 'Dummy Track 2', artist: 'N/A', buttonText: 'False Lead', spotifyUri: '', trackId: '', isDummy: true }
+            { id: 6, title: 'Dummy Track 1', artist: 'N/A', buttonText: 'Red Herring 🚫', spotifyUri: 'spotify:track:3n3Ppam7vgaVa1iaRUc9Lp', trackId: '3n3Ppam7vgaVa1iaRUc9Lp', isDummy: true },
+            { id: 7, title: 'Dummy Track 2', artist: 'N/A', buttonText: 'False Lead 🚫', spotifyUri: 'spotify:track:4cOdK2wGLETKBW3PvgPWqV', trackId: '4cOdK2wGLETKBW3PvgPWqV', isDummy: true }
           ]
         },
         {
@@ -32,8 +32,8 @@ function initializeDb() {
             { id: 3, title: 'Blank Space', artist: 'Taylor Swift', buttonText: 'New Lover Lesson', spotifyUri: 'spotify:track:1301WleyT98MSxVHPZCA6M', trackId: '1301WleyT98MSxVHPZCA6M', isDummy: false },
             { id: 4, title: 'Anti-Hero', artist: 'Taylor Swift', buttonText: 'Self Reflection', spotifyUri: 'spotify:track:0VjIjW4GlUZAMYd2vXMwbv', trackId: '0VjIjW4GlUZAMYd2vXMwbv', isDummy: false },
             { id: 5, title: 'Look What You Made Me Do', artist: 'Taylor Swift', buttonText: 'Revenge Anthem', spotifyUri: 'spotify:track:2s0J3w47u6K0qJpHnFkRRa', trackId: '2s0J3w47u6K0qJpHnFkRRa', isDummy: false },
-            { id: 6, title: 'Dummy Track 1', artist: 'N/A', buttonText: 'Red Herring', spotifyUri: '', trackId: '', isDummy: true },
-            { id: 7, title: 'Dummy Track 2', artist: 'N/A', buttonText: 'False Lead', spotifyUri: '', trackId: '', isDummy: true }
+            { id: 6, title: 'Dummy Track 1', artist: 'N/A', buttonText: 'Red Herring 🚫', spotifyUri: 'spotify:track:3n3Ppam7vgaVa1iaRUc9Lp', trackId: '3n3Ppam7vgaVa1iaRUc9Lp', isDummy: true },
+            { id: 7, title: 'Dummy Track 2', artist: 'N/A', buttonText: 'False Lead 🚫', spotifyUri: 'spotify:track:4cOdK2wGLETKBW3PvgPWqV', trackId: '4cOdK2wGLETKBW3PvgPWqV', isDummy: true }
           ]
         },
         {
@@ -46,8 +46,8 @@ function initializeDb() {
             { id: 3, title: 'Heat Waves', artist: 'Glass Animals', buttonText: 'Desert Mirage', spotifyUri: 'spotify:track:4cOdK2wGLETKBW3PvgPWqV', trackId: '4cOdK2wGLETKBW3PvgPWqV' },
             { id: 4, title: 'Uptown Funk', artist: 'Mark Ronson ft. Bruno Mars', buttonText: 'Retro Funk', spotifyUri: 'spotify:track:0DiWxABG7uwpf8Tn5pjnwJ', trackId: '0DiWxABG7uwpf8Tn5pjnwJ' },
             { id: 5, title: 'One Dance', artist: 'Drake ft. Wizkid & Kyla', buttonText: 'Two Step', spotifyUri: 'spotify:track:1301WleyT98MSxVHPZCA6M', trackId: '1301WleyT98MSxVHPZCA6M' },
-            { id: 6, title: 'Dummy Track 1', artist: 'N/A', buttonText: 'Red Herring', spotifyUri: '', trackId: '', isDummy: true },
-            { id: 7, title: 'Dummy Track 2', artist: 'N/A', buttonText: 'False Lead', spotifyUri: '', trackId: '', isDummy: true }
+            { id: 6, title: 'Dummy Track 1', artist: 'N/A', buttonText: 'Red Herring 🚫', spotifyUri: 'spotify:track:3n3Ppam7vgaVa1iaRUc9Lp', trackId: '3n3Ppam7vgaVa1iaRUc9Lp', isDummy: true },
+            { id: 7, title: 'Dummy Track 2', artist: 'N/A', buttonText: 'False Lead 🚫', spotifyUri: 'spotify:track:4cOdK2wGLETKBW3PvgPWqV', trackId: '4cOdK2wGLETKBW3PvgPWqV', isDummy: true }
           ]
         }
       ],
