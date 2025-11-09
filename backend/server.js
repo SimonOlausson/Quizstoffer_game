@@ -286,16 +286,6 @@ function handlePlaySong(ws, payload) {
   const room = rooms.get(ws.roomId);
   if (!room || !ws.isHost) return;
 
-  // Check if the selected button is a dummy song
-  const selectedSong = room.quiz[buttonIndex];
-  if (selectedSong && selectedSong.isDummy) {
-    ws.send(JSON.stringify({
-      type: 'ERROR',
-      message: 'Cannot play a dummy song',
-    }));
-    return;
-  }
-
   room.currentButton = buttonIndex;
   room.guesses.clear();
   room.roundPoints.clear(); // Reset round points for new song
@@ -402,14 +392,8 @@ function finishRound(room) {
   // Add button to used list
   room.usedButtons.push(room.currentButton);
 
-  // Count how many real (non-dummy) songs have been played
-  const realSongsPlayed = room.usedButtons.filter(buttonIndex => {
-    const song = room.quiz[buttonIndex];
-    return song && !song.isDummy;
-  }).length;
-
-  // Check if 6 real songs have been played
-  if (realSongsPlayed >= 6) {
+  // Check if all songs have been played (8 total)
+  if (room.usedButtons.length >= room.quiz.length) {
     // Game ended - send final scoreboard
     const finalScoreboard = Array.from(room.players.entries())
       .map(([playerId, player]) => ({
