@@ -17,7 +17,7 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
   const [loadingQuizzes, setLoadingQuizzes] = useState(true)
   const [finalScoreboard, setFinalScoreboard] = useState(null)
 
-  const API_URL = 'http://localhost:3001'
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
   // Load quizzes on mount
   useEffect(() => {
