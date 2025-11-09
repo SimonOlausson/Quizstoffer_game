@@ -472,6 +472,13 @@ function handleReconnect(ws, payload) {
 
     console.log(`Player reconnected: ${playerId} in room ${roomId}`);
 
+    // Build the full player list for reconnecting player
+    const playersList = Array.from(room.players.entries()).map(([pid, p]) => ({
+      playerId: pid,
+      name: p.name,
+      score: p.score,
+    }));
+
     // Send the current game state to the reconnected player
     ws.send(JSON.stringify({
       type: 'RECONNECT_SUCCESS',
@@ -482,6 +489,9 @@ function handleReconnect(ws, payload) {
       scores: room.scores,
       gameState: room.state,
       isHost: ws.isHost,
+      players: playersList,
+      currentRound: room.currentRound,
+      currentButton: room.currentButton,
     }));
 
     // Notify other players that this player rejoined

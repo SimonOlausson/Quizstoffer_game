@@ -91,6 +91,16 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
           setRetryPopup(null)
           setGameState('game_ended')
           break
+        case 'RECONNECT_SUCCESS':
+          // Restore full game state from reconnection
+          setPlayers(data.players || [])
+          setScores(data.scores || {})
+          setUsedButtons(data.usedButtons || [])
+          setCurrentRound(data.currentRound || 0)
+          setSelectedButton(data.currentButton !== null && data.currentButton !== undefined ? data.currentButton : null)
+          setGameState(data.gameState || 'waiting')
+          console.log('Host reconnected successfully - restored game state')
+          break
         case 'PLAYER_LEFT':
           // Handle player disconnect
           break

@@ -100,6 +100,20 @@ export default function PlayerPage({ ws, roomId, gameId, playerName, onGoHome })
           setFinalScoreboard(data.finalScoreboard)
           setGlobalScores(data.scores || {})
           break
+        case 'RECONNECT_SUCCESS':
+          // Restore full game state from reconnection
+          setQuiz(data.quiz || [])
+          setUsedButtons(data.usedButtons || [])
+          setGlobalScores(data.scores || {})
+          setGameState(data.gameState || 'waiting')
+          setAllPlayers(data.players || [])
+          setSelectedGuess(null)
+          setMyResult(null)
+          setTimer(null)
+          setCountdownTimer(null)
+          setRoundResults(null)
+          console.log('Player reconnected successfully - restored game state')
+          break
         case 'PLAYER_JOINED':
           setAllPlayers(data.players)
           break
