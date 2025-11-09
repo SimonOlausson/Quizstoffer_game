@@ -457,12 +457,6 @@ function handleReconnect(ws, payload) {
   // Check if player already exists in the room
   const existingPlayer = room.players.get(playerId);
   if (existingPlayer) {
-    // Clear the grace period timeout since player reconnected
-    if (existingPlayer.disconnectTimeoutId) {
-      clearTimeout(existingPlayer.disconnectTimeoutId);
-      existingPlayer.disconnectTimeoutId = null;
-    }
-
     // Update the WebSocket connection for the player
     existingPlayer.ws = ws;
     existingPlayer.connected = true;
@@ -529,33 +523,9 @@ function handlePlayerDisconnect(ws) {
           playerName: player.name,
         });
 
-        // For hosts, wait indefinitely for reconnection - no removal
-        // For regular players, set a 30-second grace period
-        if (!ws.isHost) {
-          const gracePeriodTimeout = setTimeout(() => {
-            const stillDisconnected = room.players.get(ws.playerId);
-            if (stillDisconnected && !stillDisconnected.connected) {
-              room.players.delete(ws.playerId);
-              console.log(`Player removed after grace period: ${ws.playerId} in room ${roomId}`);
-
-              // Notify other players that this player left
-              broadcastToRoom(roomId, {
-                type: 'PLAYER_LEFT',
-                playerId: ws.playerId,
-              });
-
-              // If no players left and host is gone, delete room
-              if (room.players.size === 0) {
-                rooms.delete(roomId);
-                console.log(`Room deleted: ${roomId}`);
-              }
-            }
-          }, 30000); // 30 second grace period for regular players
-
-          player.disconnectTimeoutId = gracePeriodTimeout;
-        } else {
-          console.log(`Host ${ws.playerId} disconnected - waiting for reconnection indefinitely`);
-        }
+        // Wait indefinitely for all players (host and regular players) to reconnect
+        // Do not automatically remove players
+        console.log(`Player ${ws.playerId} disconnected - waiting for reconnection indefinitely`);
       }
     }
   }
