@@ -98,6 +98,7 @@ function handleCreateRoom(ws, payload) {
     quiz: [],
     scores: {},
     guesses: new Map(),
+    roundPoints: new Map(), // Store points earned in current round
     usedButtons: [],
   };
 
@@ -158,7 +159,8 @@ function handleJoinRoom(ws, payload) {
       type: 'PLAYER_JOINED',
       playerId: ws.playerId,
       playerName: playerName,
-      players: Array.from(room.players.values()).map(p => ({
+      players: Array.from(room.players.entries()).map(([pid, p]) => ({
+        playerId: pid,
         name: p.name,
         score: p.score,
       })),
@@ -240,6 +242,7 @@ function handlePlaySong(ws, payload) {
 
   room.currentButton = buttonIndex;
   room.guesses.clear();
+  room.roundPoints.clear(); // Reset round points for new song
   room.songStartTime = Date.now(); // Track song start time for speed-based scoring
 
   broadcastToRoom(ws.roomId, {
@@ -282,6 +285,9 @@ function handleSubmitGuess(ws, payload) {
     room.scores[ws.playerId] = (room.scores[ws.playerId] || 0) + points;
   }
 
+  // Store points earned in this round for results display
+  room.roundPoints.set(ws.playerId, points);
+
   // Send feedback to the player who guessed
   ws.send(JSON.stringify({
     type: 'GUESS_RECEIVED',
@@ -317,22 +323,20 @@ function handleSubmitGuess(ws, payload) {
 function finishRound(room) {
   // Create results showing who was correct
   const results = [];
-  room.guesses.forEach((guess, playerId) => {
-    const isCorrect = guess === room.currentButton;
-    const playerName = room.players.get(playerId)?.name || 'Unknown Player';
 
-    // Calculate points based on speed (same logic as handleSubmitGuess)
-    let points = 0;
-    if (isCorrect) {
-      const timeElapsed = (Date.now() - room.songStartTime) / 1000;
-      const maxTime = 60;
-      points = Math.max(0, Math.round(100 * (maxTime - timeElapsed) / maxTime));
-    }
+  // Include all players in results (whether they guessed or not)
+  room.players.forEach((player, playerId) => {
+    const guess = room.guesses.get(playerId);
+    const playerName = player.name || 'Unknown Player';
+    const isCorrect = guess === room.currentButton;
+
+    // Use points stored when guess was submitted (not recalculated)
+    const points = room.roundPoints.get(playerId) || 0;
 
     results.push({
       playerId,
       playerName,
-      guess,
+      guess: guess !== undefined ? guess : null,
       correct: isCorrect,
       correctAnswer: room.currentButton,
       points: points,
@@ -437,7 +441,8 @@ function handleReconnect(ws, payload) {
     // Notify other players that this player rejoined
     broadcastToRoom(roomId, {
       type: 'PLAYER_JOINED',
-      players: Array.from(room.players.values()).map(p => ({
+      players: Array.from(room.players.entries()).map(([pid, p]) => ({
+        playerId: pid,
         name: p.name,
         score: p.score,
       })),

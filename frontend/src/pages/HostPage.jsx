@@ -305,7 +305,8 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
               <p style={{ color: '#999' }}>No scores yet</p>
             ) : (
               Object.entries(scores).map(([playerId, score]) => {
-                const playerName = players.find(p => p.name) ? players[0].name : `Player ${playerId}`
+                const player = Array.from(players).find(p => p.playerId === playerId)
+                const playerName = player?.name || `Player ${playerId}`
                 return (
                   <div key={playerId} className="score-row">
                     <span>{playerName}</span>
