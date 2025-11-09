@@ -69,11 +69,13 @@ function AppRoutes() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage ws={ws} onCreateRoom={handleCreateRoom} />} />
-      <Route path="/game/:gameId" element={<GamePage ws={ws} playerId={playerId} playerIdRef={playerIdRef} />} />
-      <Route path="/admin" element={<AdminPage />} />
-    </Routes>
+    <div className="app">
+      <Routes>
+        <Route path="/" element={<HomePage ws={ws} onCreateRoom={handleCreateRoom} />} />
+        <Route path="/game/:gameId" element={<GamePage ws={ws} playerId={playerId} playerIdRef={playerIdRef} />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </div>
   )
 }
 
