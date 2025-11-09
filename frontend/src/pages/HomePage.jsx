@@ -37,12 +37,15 @@ export default function HomePage({ ws, onCreateRoom }) {
     const gameId = gameIdDigits.join('')
     if (gameId.length === 6 && playerName.trim()) {
       setLocalError(null)
-      // Save player name to localStorage before navigating
-      const savedState = localStorage.getItem('quiztopher_game_state')
-      const state = savedState ? JSON.parse(savedState) : {}
+      // Save player state to localStorage before navigating
+      // Clear any previous host state for this new game
       localStorage.setItem('quiztopher_game_state', JSON.stringify({
-        ...state,
+        playerId: localStorage.getItem('quiztopher_game_state')
+          ? JSON.parse(localStorage.getItem('quiztopher_game_state')).playerId
+          : undefined,
         playerName: playerName,
+        gameId: gameId,
+        // NOT setting isHost or roomId - let server decide
       }))
       navigate(`/game/${gameId}`)
     } else {

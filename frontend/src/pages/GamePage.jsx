@@ -13,25 +13,52 @@ export default function GamePage({ ws, playerId, playerIdRef }) {
   const [isReconnecting, setIsReconnecting] = useState(false)
   const reconnectAttemptedRef = useRef(false)
 
-  // Load saved state on mount
+  // Reset reconnect flag when gameId changes (navigating to a new game)
+  useEffect(() => {
+    console.log('GamePage mounted/updated for gameId:', gameId)
+    reconnectAttemptedRef.current = false
+  }, [gameId])
+
+  // Load saved state on mount and set role/roomId if available
   useEffect(() => {
     const savedState = localStorage.getItem('quiztopher_game_state')
     if (savedState) {
       const state = JSON.parse(savedState)
+      console.log('Saved state:', state)
       if (state.playerName) {
+        console.log('Setting playerName from saved state:', state.playerName)
         setPlayerName(state.playerName)
       }
+      // ONLY restore role/roomId if we have a roomId (meaning we're reconnecting to an existing game)
+      // If no roomId, we're joining a new game and should wait for server response
+      if (state.gameId === gameId && state.roomId) {
+        console.log('Restoring state from localStorage. isHost:', state.isHost)
+        setRoomId(state.roomId)
+        setRole(state.isHost ? 'host' : 'player')
+      }
     }
-  }, [])
+  }, [gameId])
 
   // Auto-join/reconnect when WebSocket is ready
   useEffect(() => {
-    if (!ws || !gameId || !playerId || !playerIdRef.current || reconnectAttemptedRef.current) return
+    if (!ws || !gameId || reconnectAttemptedRef.current) {
+      console.log('Skipping auto-join. ws:', !!ws, 'gameId:', gameId, 'attempted:', reconnectAttemptedRef.current)
+      return
+    }
 
+    console.log('Auto-join effect running for gameId:', gameId)
     const savedState = localStorage.getItem('quiztopher_game_state')
     const state = savedState ? JSON.parse(savedState) : {}
 
-    // If we have saved state for this game, try to reconnect
+    // If we just created a room (isHost: true in saved state), don't send JOIN or RECONNECT
+    // The CREATE_ROOM was already handled in App.jsx
+    if (state.isHost && state.gameId === gameId) {
+      console.log('Host room already created:', gameId)
+      reconnectAttemptedRef.current = true
+      return
+    }
+
+    // If we have saved state for this game WITH a roomId, try to reconnect
     if (state.gameId === gameId && state.roomId) {
       console.log('Attempting to reconnect to game:', gameId)
       reconnectAttemptedRef.current = true
@@ -47,7 +74,7 @@ export default function GamePage({ ws, playerId, playerIdRef }) {
       }))
     } else {
       // New game - join as player
-      console.log('Joining new game:', gameId)
+      console.log('Joining new game as player:', gameId, 'playerName:', playerName || 'Player')
       reconnectAttemptedRef.current = true
       ws.send(JSON.stringify({
         type: 'JOIN_ROOM',
@@ -57,7 +84,7 @@ export default function GamePage({ ws, playerId, playerIdRef }) {
         }
       }))
     }
-  }, [ws, gameId, playerId, playerIdRef])
+  }, [ws, gameId, playerName])
 
   // Handle WebSocket messages
   useEffect(() => {
@@ -65,23 +92,21 @@ export default function GamePage({ ws, playerId, playerIdRef }) {
 
     const handleMessage = (event) => {
       const data = JSON.parse(event.data)
+      console.log('GamePage received message:', data.type)
 
       switch (data.type) {
         case 'ROOM_CREATED':
-          // Host created a room
+          // Host created a room (this comes from App.jsx for new host)
+          console.log('Setting role to host')
           setRoomId(data.roomId)
           setRole('host')
           setIsReconnecting(false)
-          localStorage.setItem('quiztopher_game_state', JSON.stringify({
-            playerId: playerIdRef.current,
-            roomId: data.roomId,
-            gameId: data.gameId,
-            isHost: true,
-          }))
+          // Already saved in App.jsx, just update local state
           break
 
         case 'JOIN_ROOM_SUCCESS':
           // Player joined successfully
+          console.log('Player joined successfully:', data.roomId)
           setRoomId(data.roomId)
           setRole('player')
           setIsReconnecting(false)
@@ -96,6 +121,7 @@ export default function GamePage({ ws, playerId, playerIdRef }) {
 
         case 'RECONNECT_SUCCESS':
           // Reconnection successful
+          console.log('Reconnect successful')
           setRoomId(data.roomId)
           setRole(data.isHost ? 'host' : 'player')
           setIsReconnecting(false)
@@ -104,6 +130,7 @@ export default function GamePage({ ws, playerId, playerIdRef }) {
 
         case 'ERROR':
           // Handle errors
+          console.error('Error from server:', data.message)
           if (data.message === 'Room not found') {
             localStorage.removeItem('quiztopher_game_state')
             navigate('/')

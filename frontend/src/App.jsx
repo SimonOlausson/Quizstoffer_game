@@ -33,27 +33,39 @@ function AppRoutes() {
   }, [])
 
   const handleCreateRoom = () => {
-    if (ws) {
-      ws.send(JSON.stringify({
-        type: 'CREATE_ROOM',
-        payload: {}
-      }))
-      // Listen for room creation
-      const handler = (event) => {
-        const data = JSON.parse(event.data)
-        if (data.type === 'ROOM_CREATED') {
-          localStorage.setItem('quiztopher_game_state', JSON.stringify({
-            playerId: playerIdRef.current,
-            roomId: data.roomId,
-            gameId: data.gameId,
-            isHost: true,
-          }))
-          navigate(`/game/${data.gameId}`)
-          ws.removeEventListener('message', handler)
-        }
-      }
-      ws.addEventListener('message', handler)
+    if (!ws) {
+      console.error('WebSocket not connected')
+      alert('Connection not ready. Please try again.')
+      return
     }
+
+    console.log('Creating room...')
+
+    // Set up listener BEFORE sending message to ensure we catch response
+    const tempHandler = (event) => {
+      const data = JSON.parse(event.data)
+      console.log('Received message:', data.type)
+      if (data.type === 'ROOM_CREATED') {
+        console.log('Room created:', data.gameId)
+        // Save state and navigate - GamePage will handle the rest
+        localStorage.setItem('quiztopher_game_state', JSON.stringify({
+          playerId: playerIdRef.current,
+          roomId: data.roomId,
+          gameId: data.gameId,
+          isHost: true,
+        }))
+        ws.removeEventListener('message', tempHandler)
+        navigate(`/game/${data.gameId}`)
+      }
+    }
+
+    ws.addEventListener('message', tempHandler)
+
+    // Send CREATE_ROOM message
+    ws.send(JSON.stringify({
+      type: 'CREATE_ROOM',
+      payload: {}
+    }))
   }
 
   return (
