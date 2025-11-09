@@ -14,7 +14,9 @@ export default function App() {
   const [isHost, setIsHost] = useState(false)
   const [playerId, setPlayerId] = useState(null)
   const playerIdRef = useRef(null)
-  const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001'
+  const WS_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'wss://qvisser.onrender.com'
+    : (import.meta.env.VITE_WS_URL || 'ws://localhost:3001')
   const ws = useWebSocket(WS_URL)
 
   // Initialize from localStorage on mount
