@@ -268,18 +268,19 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
             {sampleQuiz.map((song, idx) => {
               const isUsed = usedButtons.includes(idx);
               const isSelected = selectedButton === idx;
+              const isDummy = song.isDummy;
               return (
                 <div
                   key={idx}
                   style={{
                     padding: 16,
-                    background: isSelected ? '#e3f2fd' : isUsed ? '#f5f5f5' : 'white',
-                    border: isSelected ? '2px solid #2196f3' : isUsed ? '1px solid #ccc' : '1px solid #e0e0e0',
+                    background: isSelected ? '#e3f2fd' : isUsed ? '#f5f5f5' : isDummy ? '#ffe0e0' : 'white',
+                    border: isSelected ? '2px solid #2196f3' : isUsed ? '1px solid #ccc' : isDummy ? '1px solid #ffcccc' : '1px solid #e0e0e0',
                     borderRadius: 12,
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    opacity: isUsed ? 0.6 : 1,
+                    opacity: isUsed || isDummy ? 0.6 : 1,
                   }}
                 >
                   <div style={{ flex: 1 }}>
@@ -295,21 +296,21 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
                   </div>
                   <button
                     onClick={() => handlePlaySong(idx)}
-                    disabled={isUsed || selectedButton !== null}
+                    disabled={isUsed || isDummy || selectedButton !== null}
                     style={{
                       padding: '10px 20px',
                       marginLeft: 16,
-                      background: isUsed ? '#ccc' : '#667eea',
+                      background: isUsed || isDummy ? '#ccc' : '#667eea',
                       color: 'white',
                       border: 'none',
                       borderRadius: 8,
-                      cursor: isUsed || selectedButton !== null ? 'not-allowed' : 'pointer',
+                      cursor: isUsed || isDummy || selectedButton !== null ? 'not-allowed' : 'pointer',
                       fontWeight: 600,
                       fontSize: 14,
-                      opacity: isUsed || (selectedButton !== null && !isSelected) ? 0.5 : 1,
+                      opacity: isUsed || isDummy || (selectedButton !== null && !isSelected) ? 0.5 : 1,
                     }}
                   >
-                    {isUsed ? '✓ Used' : 'Play'}
+                    {isDummy ? '🚫 Dummy' : isUsed ? '✓ Used' : 'Play'}
                   </button>
                 </div>
               );
