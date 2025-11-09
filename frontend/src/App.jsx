@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import HostPage from './pages/HostPage'
 import PlayerPage from './pages/PlayerPage'
 import AdminPage from './pages/AdminPage'
+import ReconnectingScreen from './components/ReconnectingScreen'
 import { useWebSocket } from './hooks/useWebSocket'
 
 export default function App() {
@@ -14,7 +15,9 @@ export default function App() {
   const [isHost, setIsHost] = useState(false)
   const [playerId, setPlayerId] = useState(null)
   const [joinError, setJoinError] = useState(null)
+  const [isReconnecting, setIsReconnecting] = useState(false)
   const playerIdRef = useRef(null)
+  const reconnectAttemptedRef = useRef(false)
   const WS_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? 'wss://qvisser.onrender.com'
     : (import.meta.env.VITE_WS_URL || 'ws://localhost:3001')
@@ -37,11 +40,13 @@ export default function App() {
     if (!ws) return
 
     const savedState = localStorage.getItem('quiztopher_game_state')
-    if (savedState && !roomId) {
+    if (savedState && !roomId && !reconnectAttemptedRef.current) {
       const state = JSON.parse(savedState)
       if (state.roomId && state.playerId && state.gameId) {
         // Try to reconnect to the game
         console.log('Attempting to reconnect to game')
+        reconnectAttemptedRef.current = true
+        setIsReconnecting(true)
         ws.send(JSON.stringify({
           type: 'RECONNECT',
           payload: {
@@ -125,6 +130,8 @@ export default function App() {
           setGameId(data.gameId)
           setIsHost(data.isHost)
           setPage(data.isHost ? 'host' : 'player')
+          setIsReconnecting(false)
+          console.log('Reconnection successful!')
           break
         case 'ERROR':
           // If room not found, clear saved state and go home
@@ -133,10 +140,18 @@ export default function App() {
             setPage('home')
             setRoomId(null)
             setGameId(null)
+            setIsReconnecting(false)
+            reconnectAttemptedRef.current = false
             console.log('Room not found - cleared saved state')
-          } else if (page === 'home') {
-            // Show join errors on home page
-            setJoinError(data.message)
+          } else if (page === 'home' || isReconnecting) {
+            // Show join errors on home page or clear reconnecting on failure
+            if (isReconnecting) {
+              setIsReconnecting(false)
+              reconnectAttemptedRef.current = false
+              alert('Failed to reconnect: ' + data.message)
+            } else {
+              setJoinError(data.message)
+            }
           } else {
             alert(data.message)
           }
@@ -147,6 +162,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {isReconnecting && <ReconnectingScreen />}
       {page === 'home' && (
         <HomePage onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} setPage={setPage} joinError={joinError} setJoinError={setJoinError} />
       )}

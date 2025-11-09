@@ -224,7 +224,26 @@ export default function HostPage({ ws, roomId, gameId, onGoHome }) {
               <p style={{ margin: 0, fontSize: 18, fontWeight: 'bold' }}>{selectedQuiz.name}</p>
             </div>
           )}
-          <button className="button" onClick={handleStartQuiz} style={{ width: '100%' }}>
+          {players.length === 0 && (
+            <div style={{
+              padding: 12,
+              background: '#fff3e0',
+              border: '1px solid #ffb74d',
+              borderRadius: 8,
+              color: '#e65100',
+              marginBottom: 20,
+              fontSize: 14,
+              fontWeight: 500,
+            }}>
+              ⚠️ Waiting for players to join before you can start
+            </div>
+          )}
+          <button
+            className="button"
+            onClick={handleStartQuiz}
+            disabled={players.length === 0 || !selectedQuiz}
+            style={{ width: '100%', opacity: players.length === 0 || !selectedQuiz ? 0.5 : 1 }}
+          >
             Start Quiz
           </button>
         </>
